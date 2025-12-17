@@ -1,3 +1,7 @@
+using Azure.Identity;
+
+using Microsoft.EntityFrameworkCore;
+
 using MyWebApplication.Db;
 
 using WebApplication.Api;
@@ -11,7 +15,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<WeatherDatabaseContext>();
+builder.Configuration.AddAzureKeyVault(
+  new Uri($"https://{builder.Configuration["KeyVaultName"]}.vault.azure.net/"),
+  new DefaultAzureCredential());
+
+builder.Services.AddDbContext<WeatherDatabaseContext>(x => x.UseSqlServer(builder.Configuration["ConnectionStrings:Database"]));
 
 var app = builder.Build();
 
